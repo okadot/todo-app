@@ -15,3 +15,6 @@ testFile,describe,testName,status,failureMessage
 ,TodoApp コンポーネント,localStorage にデータが保存される,passed,
 ,TodoApp コンポーネント,localStorage から データが読み込まれる,passed,
 ,TodoApp コンポーネント,完了済みを削除ボタンが完了タスクのみ削除する,passed,
+,TodoApp コンポーネント,期限と優先度を指定してタスクが保存される,passed,
+,TodoApp コンポーネント,優先度別のバッジが正しく表示される,passed,
+,TodoApp コンポーネント,期限と優先度なしでもタスク追加できる,passed,

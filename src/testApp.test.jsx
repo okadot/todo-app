@@ -50,6 +50,10 @@ describe('TodoApp コンポーネント', () => {
 		const addButton = screen.getByText('追加');
 
 		await userEvent.type(input, 'テストタスク');
+		const dateInput = screen.getByLabelText('due-date');
+		const prioritySelect = screen.getByLabelText('priority-select');
+		fireEvent.change(dateInput, { target: { value: '2025-12-31' } });
+		fireEvent.change(prioritySelect, { target: { value: 'High' } });
 		fireEvent.click(addButton);
 
 		expect(screen.getByText('テストタスク')).toBeInTheDocument();
@@ -60,6 +64,7 @@ describe('TodoApp コンポーネント', () => {
 		const addButton = screen.getByText('追加');
 
 		await userEvent.type(input, '   ');
+		// date/priority not set for empty input
 		fireEvent.click(addButton);
 
 		expect(screen.getByText('タスクはありません')).toBeInTheDocument();
@@ -70,6 +75,10 @@ describe('TodoApp コンポーネント', () => {
 		const addButton = screen.getByText('追加');
 
 		await userEvent.type(input, 'テストタスク');
+		const dateInput2 = screen.getByLabelText('due-date');
+		const prioritySelect2 = screen.getByLabelText('priority-select');
+		fireEvent.change(dateInput2, { target: { value: '2025-12-31' } });
+		fireEvent.change(prioritySelect2, { target: { value: 'Medium' } });
 		fireEvent.click(addButton);
 
 		expect(input.value).toBe('');
@@ -80,6 +89,10 @@ describe('TodoApp コンポーネント', () => {
 		const addButton = screen.getByText('追加');
 
 		await userEvent.type(input, 'テストタスク');
+		const dateInput3 = screen.getByLabelText('due-date');
+		const prioritySelect3 = screen.getByLabelText('priority-select');
+		fireEvent.change(dateInput3, { target: { value: '2025-12-31' } });
+		fireEvent.change(prioritySelect3, { target: { value: 'Medium' } });
 		fireEvent.click(addButton);
 
 		const checkbox = screen.getByRole('checkbox', { hidden: true });
@@ -107,12 +120,20 @@ describe('TodoApp コンポーネント', () => {
 		const addButton = screen.getByText('追加');
 
 		await userEvent.type(input, 'タスク1');
+		const d1 = screen.getByLabelText('due-date');
+		const p1 = screen.getByLabelText('priority-select');
+		fireEvent.change(d1, { target: { value: '2025-12-01' } });
+		fireEvent.change(p1, { target: { value: 'Low' } });
 		fireEvent.click(addButton);
 
 		await userEvent.type(input, 'タスク2');
+		fireEvent.change(d1, { target: { value: '2025-12-02' } });
+		fireEvent.change(p1, { target: { value: 'Medium' } });
 		fireEvent.click(addButton);
 
 		await userEvent.type(input, 'タスク3');
+		fireEvent.change(d1, { target: { value: '2025-12-03' } });
+		fireEvent.change(p1, { target: { value: 'High' } });
 		fireEvent.click(addButton);
 
 		expect(screen.getByText('タスク1')).toBeInTheDocument();
@@ -126,9 +147,15 @@ describe('TodoApp コンポーネント', () => {
 
 		// 2つのタスクを追加
 		await userEvent.type(input, 'タスク1');
+		const d2 = screen.getByLabelText('due-date');
+		const p2 = screen.getByLabelText('priority-select');
+		fireEvent.change(d2, { target: { value: '2025-12-01' } });
+		fireEvent.change(p2, { target: { value: 'Low' } });
 		fireEvent.click(addButton);
 
 		await userEvent.type(input, 'タスク2');
+		fireEvent.change(d2, { target: { value: '2025-12-02' } });
+		fireEvent.change(p2, { target: { value: 'Medium' } });
 		fireEvent.click(addButton);
 
 		// 1つ目のタスクを完了
@@ -136,8 +163,8 @@ describe('TodoApp コンポーネント', () => {
 		fireEvent.click(checkboxes[0]);
 
 		// 未完了フィルターをクリック
-		const pendingButton = screen.getByRole('button', { name: '未完了' });
-		fireEvent.click(pendingButton);
+		const pendingButtons = screen.getAllByRole('button', { name: '未完了' });
+		fireEvent.click(pendingButtons[0]);
 
 		expect(screen.getByText('タスク2')).toBeInTheDocument();
 		expect(screen.queryByText('タスク1')).not.toBeInTheDocument();
@@ -149,9 +176,15 @@ describe('TodoApp コンポーネント', () => {
 
 		// 2つのタスクを追加
 		await userEvent.type(input, 'タスク1');
+		const d3 = screen.getByLabelText('due-date');
+		const p3 = screen.getByLabelText('priority-select');
+		fireEvent.change(d3, { target: { value: '2025-12-01' } });
+		fireEvent.change(p3, { target: { value: 'Low' } });
 		fireEvent.click(addButton);
 
 		await userEvent.type(input, 'タスク2');
+		fireEvent.change(d3, { target: { value: '2025-12-02' } });
+		fireEvent.change(p3, { target: { value: 'Medium' } });
 		fireEvent.click(addButton);
 
 		// 1つ目のタスクを完了
@@ -159,8 +192,8 @@ describe('TodoApp コンポーネント', () => {
 		fireEvent.click(checkboxes[0]);
 
 		// 完了フィルターをクリック
-		const completedButton = screen.getByRole('button', { name: '完了' });
-		fireEvent.click(completedButton);
+		const completedButtons = screen.getAllByRole('button', { name: '完了' });
+		fireEvent.click(completedButtons[0]);
 
 		expect(screen.getByText('タスク1')).toBeInTheDocument();
 		expect(screen.queryByText('タスク2')).not.toBeInTheDocument();
@@ -181,11 +214,23 @@ describe('TodoApp コンポーネント', () => {
 		const checkboxes = screen.getAllByRole('checkbox', { hidden: true });
 		fireEvent.click(checkboxes[0]);
 
-		// 統計情報を確認
-		const badges = screen.getAllByRole('status');
-		expect(badges[0]).toHaveTextContent('2'); // 全体
-		expect(badges[1]).toHaveTextContent('1'); // 未完了
-		expect(badges[2]).toHaveTextContent('1'); // 完了
+		// 統計情報を確認（見出しで絞って各バッジを取得）
+		const allHeaders = screen.getAllByRole('heading', { level: 5 });
+		const totalHeading = allHeaders[0]; // 全体
+		const pendingHeading = allHeaders[1]; // 未完了
+		const completedHeading = allHeaders[2]; // 完了
+
+		const totalContainer = totalHeading.closest('div').closest('div');
+		const pendingContainer = pendingHeading.closest('div').closest('div');
+		const completedContainer = completedHeading.closest('div').closest('div');
+
+		const totalBadge = within(totalContainer).getByRole('status');
+		const pendingBadge = within(pendingContainer).getByRole('status');
+		const completedBadge = within(completedContainer).getByRole('status');
+
+		expect(totalBadge).toHaveTextContent('2');
+		expect(pendingBadge).toHaveTextContent('1');
+		expect(completedBadge).toHaveTextContent('1');
 	});
 
 	test('localStorage にデータが保存される', async () => {
@@ -193,6 +238,10 @@ describe('TodoApp コンポーネント', () => {
 		const addButton = screen.getByText('追加');
 
 		await userEvent.type(input, 'テストタスク');
+		const d5 = screen.getByLabelText('due-date');
+		const p5 = screen.getByLabelText('priority-select');
+		fireEvent.change(d5, { target: { value: '2025-12-31' } });
+		fireEvent.change(p5, { target: { value: 'High' } });
 		fireEvent.click(addButton);
 
 		const stored = localStorage.getItem('todos');
@@ -200,12 +249,14 @@ describe('TodoApp コンポーネント', () => {
 		const todos = JSON.parse(stored);
 		expect(todos).toHaveLength(1);
 		expect(todos[0].text).toBe('テストタスク');
+		expect(todos[0].dueDate).toBe('2025-12-31');
+		expect(todos[0].priority).toBe('High');
 	});
 
 	test('localStorage から データが読み込まれる', () => {
 		const testData = [
-			{ id: 1, text: '保存されたタスク', completed: false, createdAt: '2025/11/27' }
-		];
+				{ id: 1, text: '保存されたタスク', completed: false, createdAt: '2025/11/27', dueDate: '2025-12-31', priority: 'High' }
+			];
 		localStorage.setItem('todos', JSON.stringify(testData));
 
 		render(<TodoApp />);
@@ -234,5 +285,67 @@ describe('TodoApp コンポーネント', () => {
 
 		expect(screen.queryByText('タスク1')).not.toBeInTheDocument();
 		expect(screen.getByText('タスク2')).toBeInTheDocument();
+	});
+
+	test('期限と優先度を指定してタスクが保存される', async () => {
+		const input = screen.getByPlaceholderText('新しいタスクを入力...');
+		const dateInput = screen.getByLabelText('due-date');
+		const prioritySelect = screen.getByLabelText('priority-select');
+		const addButton = screen.getByText('追加');
+
+		await userEvent.type(input, '期限付きタスク');
+		fireEvent.change(dateInput, { target: { value: '2025-12-31' } });
+		fireEvent.change(prioritySelect, { target: { value: 'High' } });
+		fireEvent.click(addButton);
+
+		const stored = localStorage.getItem('todos');
+		const todos = JSON.parse(stored);
+		expect(todos[0].dueDate).toBe('2025-12-31');
+		expect(todos[0].priority).toBe('High');
+		expect(screen.getByText(/期限: 2025-12-31/)).toBeInTheDocument();
+	});
+
+	test('優先度別のバッジが正しく表示される', async () => {
+		const input = screen.getByPlaceholderText('新しいタスクを入力...');
+		const prioritySelect = screen.getByLabelText('priority-select');
+		const addButton = screen.getByText('追加');
+
+		// High 優先度タスク
+		await userEvent.type(input, 'High タスク');
+		fireEvent.change(prioritySelect, { target: { value: 'High' } });
+		fireEvent.click(addButton);
+
+		// Medium 優先度タスク（デフォルト）
+		await userEvent.type(input, 'Medium タスク');
+		fireEvent.change(prioritySelect, { target: { value: 'Medium' } });
+		fireEvent.click(addButton);
+
+		// Low 優先度タスク
+		await userEvent.type(input, 'Low タスク');
+		fireEvent.change(prioritySelect, { target: { value: 'Low' } });
+		fireEvent.click(addButton);
+
+		// バッジが表示されていることを確認
+		const badges = screen.getAllByRole('status');
+		const priorityBadges = badges.filter(badge => 
+			badge.textContent === 'High' || 
+			badge.textContent === 'Medium' || 
+			badge.textContent === 'Low'
+		);
+		expect(priorityBadges.length).toBeGreaterThanOrEqual(3);
+	});
+
+	test('期限と優先度なしでもタスク追加できる', async () => {
+		const input = screen.getByPlaceholderText('新しいタスクを入力...');
+		const addButton = screen.getByText('追加');
+
+		await userEvent.type(input, 'シンプルなタスク');
+		fireEvent.click(addButton);
+
+		expect(screen.getByText('シンプルなタスク')).toBeInTheDocument();
+		const stored = localStorage.getItem('todos');
+		const todos = JSON.parse(stored);
+		expect(todos[0].dueDate).toBeNull();
+		expect(todos[0].priority).toBe('Medium'); // デフォルト値
 	});
 });

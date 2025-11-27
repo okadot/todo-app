@@ -6,6 +6,8 @@ function TodoApp() {
 	const STORAGE_KEY = 'todos';
 	const [todos, setTodos] = useState([]);
 	const [input, setInput] = useState('');
+	const [dueDate, setDueDate] = useState('');
+	const [priority, setPriority] = useState('Medium');
 	const [filter, setFilter] = useState('all'); // all, completed, pending
 
 	// ローカルストレージから読み込み
@@ -34,10 +36,14 @@ function TodoApp() {
 				id: Date.now(),
 				text: input.trim(),
 				completed: false,
-				createdAt: new Date().toLocaleDateString('ja-JP')
+				createdAt: new Date().toLocaleDateString('ja-JP'),
+				dueDate: dueDate || null,
+				priority: priority || 'Medium'
 			}
 		]);
 		setInput('');
+		setDueDate('');
+		setPriority('Medium');
 	};
 
 	const handleToggle = (id) => {
@@ -101,17 +107,36 @@ function TodoApp() {
 
 							{/* 入力フォーム */}
 							<Form onSubmit={handleAdd} className="mb-4">
-								<div className="input-group">
-									<Form.Control
-										type="text"
-										value={input}
-										onChange={e => setInput(e.target.value)}
-										placeholder="新しいタスクを入力..."
-										className="py-2"
-									/>
-									<Button variant="primary" type="submit">
-										<i className="bi bi-plus-lg me-1"></i>追加
-									</Button>
+								<div className="row g-2">
+									<div className="col-12 col-md-6">
+										<Form.Control
+											type="text"
+											value={input}
+											onChange={e => setInput(e.target.value)}
+											placeholder="新しいタスクを入力..."
+											className="py-2"
+										/>
+									</div>
+									<div className="col-6 col-md-2">
+										<Form.Control
+											type="date"
+											value={dueDate}
+											onChange={e => setDueDate(e.target.value)}
+											aria-label="due-date"
+										/>
+									</div>
+									<div className="col-4 col-md-2">
+										<Form.Select value={priority} onChange={e => setPriority(e.target.value)} aria-label="priority-select">
+											<option value="Low">Low</option>
+											<option value="Medium">Medium</option>
+											<option value="High">High</option>
+										</Form.Select>
+									</div>
+									<div className="col-2 d-grid">
+										<Button variant="primary" type="submit">
+											<i className="bi bi-plus-lg me-1"></i>追加
+										</Button>
+									</div>
 								</div>
 							</Form>
 
@@ -172,8 +197,18 @@ function TodoApp() {
 													>
 														{todo.text}
 													</p>
-													<small className="text-muted">
+													<small className="text-muted d-block">
 														{todo.createdAt}
+														{todo.dueDate && (
+															<>
+																&nbsp;•&nbsp;期限: {todo.dueDate}
+															</>
+														)}
+														{todo.priority && (
+															<Badge bg={todo.priority === 'High' ? 'danger' : todo.priority === 'Medium' ? 'warning' : 'secondary'} className="ms-2" role="status">
+															{todo.priority}
+															</Badge>
+														)}
 													</small>
 												</div>
 											</div>
